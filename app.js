@@ -33,23 +33,6 @@ app.use(
     extended: true,
   })
 );
-// app.get('/', (req, res) => {
-//   res.json({ message: 'ok' });
-// });
-
-app.get('/', async (req, res) => {
-  try {
-    const result = await db.pool.query('select * from ppl_salary');
-    res.send(result);
-  } catch (err) {
-    console.log('🚀 ~ file: app.js ~ line 44 ~ app.get ~ err', err);
-    throw err;
-  }
-});
-
-app.get('/test', (request, response) => {
-  response.status(200).send('TESTY');
-});
 
 app.use('/salary', salaryRouter);
 

@@ -79,7 +79,8 @@ router.post('/new', async function (req, res) {
 router.get('/:job', async function (req, res) {
   let maxSalaryByJob;
   try {
-    const sqlQuery = 'SELECT name, MAX(salary) FROM ppl_salary WHERE job=?';
+    const sqlQuery =
+      'SELECT name, job, MAX(salary) FROM ppl_salary WHERE job=?';
     maxSalaryByJob = await db.pool.query(sqlQuery, req.params.job);
   } catch (error) {
     return next(

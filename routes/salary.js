@@ -41,7 +41,7 @@ router.get('/:job', async function (req, res) {
   try {
     const sqlQuery = 'SELECT name, MAX(salary) FROM ppl_salary WHERE job=?';
     const rows = await db.pool.query(sqlQuery, req.params.job);
-    res.status(200).json(rows);
+    res.status(200).json(rows[0]);
   } catch (error) {
     res.status(400).send(error.message);
   }

@@ -24,7 +24,6 @@ const express = require('express');
 const salaryRouter = require('./routes/salary');
 
 const app = express();
-const db = require('./services/db');
 const port = process.env.PORT || 8080;
 
 app.use(express.json());

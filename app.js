@@ -1,28 +1,7 @@
-// const express = require('express');
-// const cors = require('cors');
-// const app = express();
-// var corsOptions = {
-//   origin: 'http://localhost:8081',
-// };
-// app.use(cors(corsOptions));
-// // parse requests of content-type - application/json
-// app.use(express.json());
-// // parse requests of content-type - application/x-www-form-urlencoded
-// app.use(express.urlencoded({ extended: true }));
-// // simple route
-// app.get('/', (req, res) => {
-//   res.json({ message: 'Welcome to bezkoder application.' });
-// });
-// // require('./app/routes/tutorial.routes.js')(app);
-// // set port, listen for requests
-// const PORT = process.env.PORT || 8080;
-// app.listen(PORT, () => {
-//   console.log(`Server is running on port ${PORT}.`);
-// });
-
 const express = require('express');
 // const cors = require('cors');
 const salaryRouter = require('./routes/salary');
+const httpError = require('./models/http-error');
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -56,6 +35,19 @@ app.use(
 );
 
 app.use('/salary', salaryRouter);
+
+app.use((req, res, next) => {
+  const error = new httpError('Could not find this route', 404);
+  return next(error);
+});
+
+app.use((error, req, res, next) => {
+  if (res.headerSent) {
+    return next(error);
+  }
+  res.status(error.code || 500);
+  res.json({ message: error.message || 'An unknown error occurred!' });
+});
 
 app.listen(port, () => {
   console.log(`Hallo app listening at http://localhost:${port}`);

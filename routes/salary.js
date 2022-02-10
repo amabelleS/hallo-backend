@@ -1,58 +1,61 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../services/db');
+const HttpError = require('../models/http-error');
 
 router.get('/', async (req, res) => {
+  let salaries;
   try {
-    const result = await db.pool.query('select * from ppl_salary');
-    res.send(result);
+    salaries = await db.pool.query('select * from ppl_salary');
   } catch (err) {
-    console.log('🚀 ~ file: app.js ~ line 44 ~ app.get ~ err', err);
-    throw err;
+    return next(
+      new HttpError('fetching salaries failed, please try again later', 500)
+    );
   }
+  res.send(salaries);
 });
 
 router.get('/avg', async function (req, res) {
+  let jobsAvg;
   try {
     const sqlQuery = `SELECT job, AVG(salary) AS avg FROM ppl_salary GROUP BY job`;
-    const rows = await db.pool.query(sqlQuery);
-    const avgJobs = rows.map((job) => {
-      return {
-        [job.job]: job.avg,
-      };
-    });
-    res.status(200).json(avgJobs);
+    jobsAvg = await db.pool.query(sqlQuery);
+    // const avgJobs = rows.map((job) => {
+    //   return {
+    //     [job.job]: job.avg,
+    //   };
+    // });
   } catch (error) {
-    res.status(400).send(error.message);
+    return next(
+      new HttpError(
+        'Fetching average jobs salary failed, please try again later',
+        500
+      )
+    );
   }
+  res.status(200).json(jobsAvg);
 });
 
 router.get('/popularity', async function (req, res) {
+  let jobsPopularity;
   try {
     const sqlQuery = `SELECT job, COUNT(job) AS popularity FROM ppl_salary GROUP BY job`;
-    const rows = await db.pool.query(sqlQuery);
-    res.status(200).json(rows);
+    jobsPopularity = await db.pool.query(sqlQuery);
+    res.status(200).json(jobsPopularity);
   } catch (error) {
-    res.status(400).send(error.message);
+    return next(
+      new HttpError(
+        'Fetching jobs popularity salary failed, please try again later',
+        500
+      )
+    );
   }
-});
-
-router.get('/:job', async function (req, res) {
-  try {
-    const sqlQuery = 'SELECT name, MAX(salary) FROM ppl_salary WHERE job=?';
-    const rows = await db.pool.query(sqlQuery, req.params.job);
-    res.status(200).json(rows[0]);
-  } catch (error) {
-    res.status(400).send(error.message);
-  }
-
-  res.status(200).json({ job: req.params.job });
 });
 
 router.post('/new', async function (req, res) {
-  try {
-    const { name, job, salary } = req.body;
+  const { name, job, salary } = req.body;
 
+  try {
     const isNameExistQuery = `SELECT name FROM ppl_salary WHERE name='${name}'`;
     const isExistsResult = await db.pool.query(isNameExistQuery);
 
@@ -67,8 +70,27 @@ router.post('/new', async function (req, res) {
 
     res.status(200).json(result);
   } catch (error) {
-    res.status(400).send(error.message);
+    return next(
+      new HttpError('Could not insert nor update, please try again later', 500)
+    );
   }
+});
+
+router.get('/:job', async function (req, res) {
+  let maxSalaryByJob;
+  try {
+    const sqlQuery = 'SELECT name, MAX(salary) FROM ppl_salary WHERE job=?';
+    maxSalaryByJob = await db.pool.query(sqlQuery, req.params.job);
+  } catch (error) {
+    return next(
+      new HttpError(
+        'Fetching maximum salary by job params failed, please try again later',
+        500
+      )
+    );
+  }
+
+  res.status(200).json(maxSalaryByJob[0]);
 });
 
 module.exports = router;

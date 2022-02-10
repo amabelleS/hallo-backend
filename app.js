@@ -41,7 +41,6 @@ app.get('/', async (req, res) => {
   try {
     const result = await db.pool.query('select * from ppl_salary');
     res.send(result);
-    console.log('🚀 ~ file: app.js ~ line 42 ~ app.get ~ result', result);
   } catch (err) {
     console.log('🚀 ~ file: app.js ~ line 44 ~ app.get ~ err', err);
     throw err;

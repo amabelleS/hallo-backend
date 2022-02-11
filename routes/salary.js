@@ -4,27 +4,26 @@ const db = require('../services/db');
 const HttpError = require('../models/http-error');
 
 router.get('/', async (req, res) => {
-  let salaries;
   try {
-    salaries = await db.pool.query('select * from ppl_salary');
+    const salaries = await db.pool.query('select * from ppl_salary');
+    res.send(salaries);
   } catch (err) {
     return next(
       new HttpError('fetching salaries failed, please try again later', 500)
     );
   }
-  res.send(salaries);
 });
 
 router.get('/avg', async function (req, res) {
-  let jobsAvg;
   try {
     const sqlQuery = `SELECT job, AVG(salary) AS avg FROM ppl_salary GROUP BY job`;
-    jobsAvg = await db.pool.query(sqlQuery);
+    const jobsAvg = await db.pool.query(sqlQuery);
     // const avgJobs = rows.map((job) => {
     //   return {
     //     [job.job]: job.avg,
     //   };
     // });
+    res.status(200).json(jobsAvg);
   } catch (error) {
     return next(
       new HttpError(
@@ -33,14 +32,12 @@ router.get('/avg', async function (req, res) {
       )
     );
   }
-  res.status(200).json(jobsAvg);
 });
 
 router.get('/popularity', async function (req, res) {
-  let jobsPopularity;
   try {
     const sqlQuery = `SELECT job, COUNT(job) AS popularity FROM ppl_salary GROUP BY job`;
-    jobsPopularity = await db.pool.query(sqlQuery);
+    const jobsPopularity = await db.pool.query(sqlQuery);
     res.status(200).json(jobsPopularity);
   } catch (error) {
     return next(
@@ -80,7 +77,7 @@ router.get('/:job', async function (req, res) {
   let maxSalaryByJob;
   try {
     const sqlQuery =
-      'SELECT name, job, MAX(salary) FROM ppl_salary WHERE job=?';
+      'SELECT name, MAX(salary) AS max FROM ppl_salary WHERE job=?';
     maxSalaryByJob = await db.pool.query(sqlQuery, req.params.job);
   } catch (error) {
     return next(

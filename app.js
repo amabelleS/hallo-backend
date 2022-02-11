@@ -1,15 +1,10 @@
 const express = require('express');
-// const cors = require('cors');
 const salaryRouter = require('./routes/salary');
 const httpError = require('./models/http-error');
 
 const app = express();
 const port = process.env.PORT || 8080;
-// const corsOptions = {
-//   origin: 'http://localhost:3000',
-// };
 
-// app.use(cors(corsOptions));
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader(

@@ -1,9 +1,8 @@
 const mariadb = require('mariadb');
-// const data = require('../data.json');
 
 // Create a connection pool
 const pool = mariadb.createPool({
-  //   host: localhost,
+  // host: localhost || 127.0.0.1,
   host: process.env.DB_HOST,
   port: 3306,
   //   user: process.env.DB_USER,

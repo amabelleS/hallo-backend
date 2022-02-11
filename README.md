@@ -1,2 +1,2 @@
 # hallo-backend
-Node.js, Express, mysql
+Node.js, Express, mariaDB
